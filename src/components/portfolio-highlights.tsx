@@ -52,7 +52,20 @@ export function PortfolioHighlights() {
 
         {/* Portfolio grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
-          {portfolioItems.map((item) => (
+          {loading ? (
+            // Skeleton loading state
+            Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="bg-card rounded-xl overflow-hidden shadow-small">
+                <Skeleton className="aspect-video w-full" />
+                <div className="p-6 space-y-3">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              </div>
+            ))
+          ) : (
+            portfolioItems.map((item) => (
             <div 
               key={item.id} 
               className="portfolio-item bg-card rounded-xl overflow-hidden shadow-small hover:shadow-premium transition-all duration-500 group"
@@ -60,7 +73,7 @@ export function PortfolioHighlights() {
               {/* Image container */}
               <div className="relative aspect-video bg-muted">
                 <img 
-                  src={item.image} 
+                  src={item.featuredImage} 
                   alt={item.title}
                   className="w-full h-full object-cover"
                 />
@@ -95,7 +108,8 @@ export function PortfolioHighlights() {
                 <p className="text-muted-foreground text-sm">{item.description}</p>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
 
         {/* CTA */}
