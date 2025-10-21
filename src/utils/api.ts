@@ -22,7 +22,7 @@ import userDataFile from '@/data/userData.json';
 
 // API configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA !== 'false'; // Default to true
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true'; // Default to false (use real APIs)
 
 /**
  * Fetch global site settings
@@ -364,7 +364,7 @@ export async function fetchBlogs(page: number = 1, limit: number = 10): Promise<
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/blogs?page=${page}&limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/api/blogs.php?page=${page}&limit=${limit}`);
     if (!response.ok) throw new Error('Failed to fetch blogs');
     return await response.json();
   } catch (error) {
@@ -393,7 +393,7 @@ export async function fetchBlogById(identifier: string | number): Promise<Blog |
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/blogs/${identifier}`);
+    const response = await fetch(`${API_BASE_URL}/api/blogs.php/${identifier}`);
     if (!response.ok) throw new Error('Blog not found');
     return await response.json();
   } catch (error) {
@@ -412,7 +412,7 @@ export async function fetchTestimonials(): Promise<Testimonial[]> {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/testimonials`);
+    const response = await fetch(`${API_BASE_URL}/api/testimonials.php`);
     if (!response.ok) throw new Error('Failed to fetch testimonials');
     return await response.json();
   } catch (error) {
@@ -463,7 +463,7 @@ export async function fetchPortfolio(
       params.append('category', category);
     }
     
-    const response = await fetch(`${API_BASE_URL}/api/portfolio?${params}`);
+    const response = await fetch(`${API_BASE_URL}/api/portfolio.php?${params}`);
     if (!response.ok) throw new Error('Failed to fetch portfolio');
     return await response.json();
   } catch (error) {
@@ -492,7 +492,7 @@ export async function fetchPortfolioById(identifier: string | number): Promise<P
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/portfolio/${identifier}`);
+    const response = await fetch(`${API_BASE_URL}/api/portfolio.php/${identifier}`);
     if (!response.ok) throw new Error('Portfolio item not found');
     return await response.json();
   } catch (error) {
@@ -511,7 +511,7 @@ export async function fetchServices(): Promise<Service[]> {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/services`);
+    const response = await fetch(`${API_BASE_URL}/api/services.php`);
     if (!response.ok) throw new Error('Failed to fetch services');
     return await response.json();
   } catch (error) {
@@ -534,7 +534,7 @@ export async function fetchServiceById(identifier: string | number): Promise<Ser
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/services/${identifier}`);
+    const response = await fetch(`${API_BASE_URL}/api/services.php/${identifier}`);
     if (!response.ok) throw new Error('Service not found');
     return await response.json();
   } catch (error) {
@@ -559,8 +559,8 @@ export async function fetchNotifications(unreadOnly: boolean = false): Promise<N
 
   try {
     const url = unreadOnly 
-      ? `${API_BASE_URL}/api/notifications?unread=true`
-      : `${API_BASE_URL}/api/notifications`;
+      ? `${API_BASE_URL}/api/notifications.php?unread=true`
+      : `${API_BASE_URL}/api/notifications.php`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch notifications');
     return await response.json();
@@ -582,7 +582,7 @@ export async function markNotificationRead(notificationId: number): Promise<bool
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
+    const response = await fetch(`${API_BASE_URL}/api/notifications.php/${notificationId}/read`, {
       method: 'PATCH',
     });
     return response.ok;
@@ -603,7 +603,7 @@ export async function fetchUserData(): Promise<UserData | null> {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/user/profile.php`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
       },
@@ -648,7 +648,7 @@ export async function submitContactForm(formData: {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/contact`, {
+    const response = await fetch(`${API_BASE_URL}/api/contact.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -686,7 +686,7 @@ export async function subscribeNewsletter(email: string): Promise<{ success: boo
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/newsletter/subscribe`, {
+    const response = await fetch(`${API_BASE_URL}/api/newsletter.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
