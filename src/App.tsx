@@ -28,7 +28,6 @@ import BlogDetail from "./pages/BlogDetail";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { Login, Register, Dashboard as UserDashboard, Profile as UserProfile, Tokens } from "./user/pages";
 
@@ -60,7 +59,6 @@ const App = () => (
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<ProtectedRoute requiredRoles={['admin', 'editor', 'viewer']}><Dashboard /></ProtectedRoute>} />
                 <Route path="/user/login" element={<Login />} />
                 <Route path="/user/register" element={<Register />} />
                 <Route path="/user/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
