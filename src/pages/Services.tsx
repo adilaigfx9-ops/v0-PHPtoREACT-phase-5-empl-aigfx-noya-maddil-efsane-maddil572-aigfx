@@ -1,204 +1,33 @@
+import { useState, useEffect } from "react"
 import { CheckCircle, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PricingCalculator } from "@/components/pricing-calculator"
 import { SEOHead } from "@/components/seo-head"
 import { useAnalytics } from "@/utils/analytics"
-
-const services = [
-  {
-    title: "Logo Design",
-    subtitle: "Professional Brand Identity",
-    description: "Create a memorable logo that builds trust and recognition for your brand.",
-    icon: "🎨",
-    packages: [
-      {
-        name: "Basic Logo",
-        price: "Starting at $149",
-        timeline: "2-3 days",
-        features: [
-          "1 Logo concept",
-          "2 Revisions included",
-          "PNG & JPG files",
-          "Basic style guide"
-        ]
-      },
-      {
-        name: "Standard Logo",
-        price: "Starting at $249",
-        timeline: "3-5 days",
-        features: [
-          "3 Logo concepts",
-          "5 Revisions included",
-          "All file formats (PNG, JPG, SVG, AI)",
-          "Detailed style guide",
-          "Social media kit"
-        ],
-        popular: true
-      },
-      {
-        name: "Premium Brand",
-        price: "Starting at $449",
-        timeline: "5-7 days",
-        features: [
-          "5 Logo concepts",
-          "Unlimited revisions",
-          "Complete file package",
-          "Brand guidelines",
-          "Business card design",
-          "Letterhead design"
-        ]
-      }
-    ]
-  },
-  {
-    title: "YouTube Thumbnails",
-    subtitle: "High-Converting Click Magnets",
-    description: "Eye-catching thumbnails that boost your CTR and grow your channel.",
-    icon: "📺",
-    packages: [
-      {
-        name: "Single Thumbnail",
-        price: "Starting at $49",
-        timeline: "24 hours",
-        features: [
-          "1 Custom thumbnail",
-          "2 Revisions included",
-          "High-resolution files",
-          "Mobile optimized"
-        ]
-      },
-      {
-        name: "Thumbnail Pack",
-        price: "Starting at $199",
-        timeline: "2-3 days",
-        features: [
-          "5 Custom thumbnails",
-          "3 Revisions per thumbnail",
-          "Multiple format options",
-          "A/B testing versions",
-          "Template variations"
-        ],
-        popular: true
-      },
-      {
-        name: "Monthly Package",
-        price: "Starting at $799",
-        timeline: "Ongoing",
-        features: [
-          "20 Custom thumbnails",
-          "Unlimited revisions",
-          "Priority support",
-          "Performance analytics",
-          "Custom thumbnail strategy"
-        ]
-      }
-    ]
-  },
-  {
-    title: "Video Editing",
-    subtitle: "Professional Video Production",
-    description: "Transform raw footage into engaging videos that keep viewers watching.",
-    icon: "🎬",
-    packages: [
-      {
-        name: "Basic Edit",
-        price: "Starting at $299",
-        timeline: "3-5 days",
-        features: [
-          "Up to 10 minutes",
-          "Basic color correction",
-          "Simple transitions",
-          "Background music"
-        ]
-      },
-      {
-        name: "Professional Edit",
-        price: "Starting at $599",
-        timeline: "5-7 days",
-        features: [
-          "Up to 20 minutes",
-          "Advanced color grading",
-          "Motion graphics",
-          "Custom animations",
-          "Sound design",
-          "Multiple revisions"
-        ],
-        popular: true
-      },
-      {
-        name: "Premium Production",
-        price: "Starting at $1,299",
-        timeline: "7-10 days",
-        features: [
-          "Up to 60 minutes",
-          "Cinematic color grading",
-          "Advanced motion graphics",
-          "Custom animations & effects",
-          "Professional sound design",
-          "Multiple format delivery"
-        ]
-      }
-    ]
-  },
-  {
-    title: "YouTube Channel Setup & Branding",
-    subtitle: "Complete Channel Transformation",
-    description: "Full channel setup, SEO optimization, and branding package to grow your YouTube presence.",
-    icon: "🚀",
-    packages: [
-      {
-        name: "Channel Starter",
-        price: "Starting at $399",
-        timeline: "5-7 days",
-        features: [
-          "Channel art & logo design",
-          "Channel description SEO",
-          "Video end screens setup",
-          "Basic branding kit",
-          "Channel optimization guide"
-        ]
-      },
-      {
-        name: "Growth Package",
-        price: "Starting at $799",
-        timeline: "7-10 days",
-        features: [
-          "Complete channel branding",
-          "Thumbnail template pack",
-          "SEO keyword research",
-          "Video intro/outro creation",
-          "Social media kit",
-          "Growth strategy consultation"
-        ],
-        popular: true
-      },
-      {
-        name: "Enterprise Channel",
-        price: "Starting at $1,499",
-        timeline: "10-14 days",
-        features: [
-          "Premium channel design",
-          "Custom motion graphics package",
-          "Advanced SEO setup",
-          "Content strategy planning",
-          "Analytics setup & training",
-          "6-month growth support"
-        ]
-      }
-    ]
-  }
-]
-
-const addOns = [
-  { name: "Rush Delivery (24h)", price: "+50%" },
-  { name: "Extra Revisions (per revision)", price: "$25" },
-  { name: "Source Files", price: "$49" },
-  { name: "Social Media Kit", price: "$99" },
-  { name: "Animation/GIF Version", price: "$149" }
-]
+import { fetchServices } from "@/utils/api"
+import { Service } from "@/types"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Services() {
-  const analytics = useAnalytics();
+  const analytics = useAnalytics()
+  const [services, setServices] = useState<Service[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        setLoading(true)
+        const data = await fetchServices()
+        setServices(data)
+      } catch (error) {
+        console.error('Failed to load services:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadServices()
+  }, [])
 
   return (
     <>
@@ -224,89 +53,103 @@ export default function Services() {
             </p>
           </div>
 
-          {/* Pricing Calculator Section */}
-          <div className="mb-20">
-            <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
-              Get an Instant <span className="text-gradient-youtube">Quote</span>
-            </h2>
-            <div className="max-w-2xl mx-auto">
-              <PricingCalculator />
-            </div>
-          </div>
-
         {/* Services */}
-        {services.map((service, serviceIndex) => (
-          <div key={service.title} className={`mb-20 ${serviceIndex !== services.length - 1 ? 'border-b border-border pb-20' : ''}`}>
-            {/* Service header */}
-            <div className="text-center mb-12">
-              <div className="text-6xl mb-4">{service.icon}</div>
-              <h2 className="text-3xl font-bold text-foreground mb-2">{service.title}</h2>
-              <p className="text-lg text-youtube-red font-medium mb-4">{service.subtitle}</p>
-              <p className="text-muted-foreground max-w-2xl mx-auto">{service.description}</p>
-            </div>
-
-            {/* Pricing packages */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {service.packages.map((pkg) => (
-                <div 
-                  key={pkg.name}
-                  className={`card-premium relative ${pkg.popular ? 'ring-2 ring-youtube-red' : ''}`}
-                >
-                  {pkg.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-gradient-youtube text-white px-4 py-1 rounded-full text-sm font-medium">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold text-foreground mb-2">{pkg.name}</h3>
-                    <div className="text-3xl font-bold text-foreground mb-2">{pkg.price}</div>
-                    <div className="flex items-center justify-center space-x-2 text-muted-foreground mb-6">
-                      <Clock className="h-4 w-4" />
-                      <span className="text-sm">{pkg.timeline}</span>
-                    </div>
-
-                    <div className="space-y-3 mb-8">
-                      {pkg.features.map((feature) => (
-                        <div key={feature} className="flex items-center space-x-3">
-                          <CheckCircle className="h-4 w-4 text-youtube-red flex-shrink-0" />
-                          <span className="text-sm text-muted-foreground text-left">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Button 
-                      className={`w-full font-medium ${
-                        pkg.popular 
-                          ? 'bg-gradient-youtube hover:shadow-glow' 
-                          : 'variant-outline border-youtube-red text-youtube-red hover:bg-youtube-red hover:text-white'
-                      } transition-all duration-300`}
-                    >
-                      Get Started
-                    </Button>
-                  </div>
+        {loading ? (
+          // Skeleton loading state
+          <div className="space-y-20">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div key={idx} className="space-y-12">
+                <div className="text-center">
+                  <Skeleton className="h-16 w-16 mx-auto mb-4" />
+                  <Skeleton className="h-8 w-64 mx-auto mb-4" />
+                  <Skeleton className="h-4 w-96 mx-auto" />
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
-
-        {/* Add-ons section */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-foreground mb-8 text-center">Add-ons & Extras</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {addOns.map((addon) => (
-              <div key={addon.name} className="card-premium">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-foreground">{addon.name}</h3>
-                  <span className="text-youtube-red font-semibold">{addon.price}</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="card-premium space-y-4">
+                      <Skeleton className="h-6 w-32 mx-auto" />
+                      <Skeleton className="h-8 w-40 mx-auto" />
+                      <Skeleton className="h-4 w-24 mx-auto" />
+                      <div className="space-y-2">
+                        {Array.from({ length: 4 }).map((_, j) => (
+                          <Skeleton key={j} className="h-4 w-full" />
+                        ))}
+                      </div>
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        ) : services.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground">No services available at the moment.</p>
+          </div>
+        ) : (
+          services.map((service, serviceIndex) => (
+            <div key={service.id} className={`mb-20 ${serviceIndex !== services.length - 1 ? 'border-b border-border pb-20' : ''}`}>
+              {/* Service header */}
+              <div className="text-center mb-12">
+                <div className="text-6xl mb-4">{service.icon || '🎨'}</div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">{service.name}</h2>
+                <p className="text-lg text-youtube-red font-medium mb-4">{service.tagline}</p>
+                <p className="text-muted-foreground max-w-2xl mx-auto">{service.description}</p>
+              </div>
+
+              {/* Pricing packages */}
+              {service.pricingTiers && service.pricingTiers.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {service.pricingTiers.map((tier, tierIndex) => (
+                    <div 
+                      key={tierIndex}
+                      className={`card-premium relative ${tier.popular ? 'ring-2 ring-youtube-red' : ''}`}
+                    >
+                      {tier.popular && (
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                          <span className="bg-gradient-youtube text-white px-4 py-1 rounded-full text-sm font-medium">
+                            Most Popular
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="text-center">
+                        <h3 className="text-xl font-semibold text-foreground mb-2">{tier.name}</h3>
+                        <div className="text-3xl font-bold text-foreground mb-2">
+                          {typeof tier.price === 'number' ? `$${tier.price}` : tier.price}
+                        </div>
+                        <div className="flex items-center justify-center space-x-2 text-muted-foreground mb-6">
+                          <Clock className="h-4 w-4" />
+                          <span className="text-sm">{tier.duration || service.deliveryTime}</span>
+                        </div>
+
+                        <div className="space-y-3 mb-8">
+                          {tier.features && tier.features.map((feature, featureIdx) => (
+                            <div key={featureIdx} className="flex items-center space-x-3">
+                              <CheckCircle className="h-4 w-4 text-youtube-red flex-shrink-0" />
+                              <span className="text-sm text-muted-foreground text-left">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <Button 
+                          className={`w-full font-medium ${
+                            tier.popular 
+                              ? 'bg-gradient-youtube hover:shadow-glow' 
+                              : 'variant-outline border-youtube-red text-youtube-red hover:bg-youtube-red hover:text-white'
+                          } transition-all duration-300`}
+                          onClick={() => window.location.href = '/contact'}
+                        >
+                          Get Started
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))
+        )}
 
         {/* Process section */}
         <div className="mb-20">
@@ -346,6 +189,16 @@ export default function Services() {
           </div>
         </div>
 
+        {/* Pricing Calculator Section - MOVED TO BOTTOM */}
+        <div className="mb-20">
+          <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
+            Get an Instant <span className="text-gradient-youtube">Quote</span>
+          </h2>
+          <div className="max-w-2xl mx-auto">
+            <PricingCalculator />
+          </div>
+        </div>
+
         {/* CTA section */}
         <div className="text-center">
           <div className="bg-gradient-subtle rounded-2xl p-8">
@@ -359,6 +212,7 @@ export default function Services() {
               <Button 
                 size="lg"
                 className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-semibold px-8 py-4"
+                onClick={() => window.location.href = '/contact'}
               >
                 Get Custom Quote
               </Button>
@@ -366,6 +220,7 @@ export default function Services() {
                 size="lg"
                 variant="outline"
                 className="border-2 border-youtube-red text-youtube-red hover:bg-youtube-red hover:text-white font-semibold px-8 py-4 transition-smooth"
+                onClick={() => window.open('https://calendly.com/adilgfx', '_blank')}
               >
                 Schedule Free Call
               </Button>

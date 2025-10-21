@@ -1,33 +1,29 @@
+import { useState, useEffect } from "react"
 import { Star, Quote } from "lucide-react"
-
-const testimonials = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    role: "YouTube Creator (2M+ Subscribers)",
-    content: "Adil's thumbnails increased my CTR by 200%! My channel growth exploded after working with him. The designs are simply outstanding.",
-    rating: 5,
-    avatar: "/api/placeholder/80/80"
-  },
-  {
-    id: 2,
-    name: "Mike Rodriguez",
-    role: "Tech Startup Founder",
-    content: "The logo Adil designed became the face of our $10M startup. Professional, creative, and delivered exactly what we envisioned.",
-    rating: 5,
-    avatar: "/api/placeholder/80/80"
-  },
-  {
-    id: 3,
-    name: "Emma Chen",
-    role: "Marketing Director",
-    content: "Working with Adil was seamless. Fast delivery, unlimited revisions, and results that exceeded our expectations. Highly recommended!",
-    rating: 5,
-    avatar: "/api/placeholder/80/80"
-  }
-]
+import { fetchTestimonials } from "@/utils/api"
+import { Testimonial } from "@/types"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function TestimonialsSection() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        setLoading(true)
+        // Fetch testimonials and take first 3
+        const data = await fetchTestimonials()
+        setTestimonials(data.slice(0, 3))
+      } catch (error) {
+        console.error('Failed to load testimonials:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTestimonials()
+  }, [])
   return (
     <section className="py-20 bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +39,28 @@ export function TestimonialsSection() {
 
         {/* Testimonials grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
+          {loading ? (
+            // Skeleton loading state
+            Array.from({ length: 3 }).map((_, idx) => (
+              <div key={idx} className="card-premium text-center">
+                <Skeleton className="w-12 h-12 rounded-full mx-auto mb-6" />
+                <div className="flex justify-center space-x-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-5 w-5" />
+                  ))}
+                </div>
+                <Skeleton className="h-20 w-full mb-6" />
+                <div className="flex items-center justify-center space-x-3">
+                  <Skeleton className="w-12 h-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            testimonials.map((testimonial) => (
             <div key={testimonial.id} className="card-premium text-center">
               {/* Quote icon */}
               <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-youtube rounded-full mb-6">
@@ -75,7 +92,8 @@ export function TestimonialsSection() {
                 </div>
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Trust badges */}
