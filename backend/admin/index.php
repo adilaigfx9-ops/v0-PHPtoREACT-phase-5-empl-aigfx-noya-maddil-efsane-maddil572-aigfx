@@ -129,6 +129,16 @@
                                 <i class="fas fa-photo-video mr-3"></i>
                                 Media Library
                             </a>
+
+                            <!-- System Tools -->
+                            <div class="mt-4">
+                                <h3 class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">System</h3>
+                                <a @click="currentView = 'system-tools'" :class="currentView === 'system-tools' ? 'bg-red-100 text-red-700' : 'text-gray-600 hover:bg-gray-50'"
+                                   class="group flex items-center px-2 py-2 text-sm font-medium rounded-md cursor-pointer">
+                                    <i class="fas fa-tools mr-3"></i>
+                                    System Tools
+                                </a>
+                            </div>
                         </nav>
                     </div>
                     <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
@@ -1096,6 +1106,127 @@
                     <p>No contact form submissions yet.</p>
                 </li>
             </ul>
+        </div>
+    </div>
+</div>
+
+<!-- System Tools View -->
+<div x-show="currentView === 'system-tools'" class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <h1 class="text-2xl font-semibold text-gray-900 mb-6">System Tools</h1>
+        <p class="text-gray-600 mb-8">Manual triggers for background processes and system maintenance.</p>
+
+        <!-- Process Queues Section -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-envelope-open-text text-blue-600 mr-2"></i>
+                Process Communication Queues
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">
+                Process pending emails, WhatsApp messages, and Telegram notifications from the queue.
+            </p>
+            
+            <div class="flex items-center space-x-4">
+                <button @click="processQueues()" 
+                        :disabled="processingQueues"
+                        class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-md transition">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    <span x-show="!processingQueues">Process Queues</span>
+                    <span x-show="processingQueues">Processing...</span>
+                </button>
+                
+                <div x-show="queueResults" class="text-sm">
+                    <span x-show="queueResults?.success" class="text-green-600">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Processed: <span x-text="queueResults?.emails_processed || 0"></span> emails, 
+                        <span x-text="queueResults?.whatsapp_processed || 0"></span> WhatsApp, 
+                        <span x-text="queueResults?.telegram_processed || 0"></span> Telegram
+                    </span>
+                    <span x-show="queueResults && !queueResults?.success" class="text-red-600">
+                        <i class="fas fa-times-circle mr-1"></i>
+                        Error processing queues
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clear Cache Section -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-broom text-purple-600 mr-2"></i>
+                System Cleanup
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">
+                Clear caches, remove expired sessions, clean old logs, and optimize database.
+            </p>
+            
+            <div class="flex items-center space-x-4">
+                <button @click="runCleanup()" 
+                        :disabled="runningCleanup"
+                        class="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-md transition">
+                    <i class="fas fa-trash-restore mr-2"></i>
+                    <span x-show="!runningCleanup">Run Cleanup</span>
+                    <span x-show="runningCleanup">Cleaning...</span>
+                </button>
+                
+                <div x-show="cleanupResults" class="text-sm">
+                    <span x-show="cleanupResults?.success" class="text-green-600">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Cache cleared, <span x-text="cleanupResults?.sessions_cleaned || 0"></span> sessions, 
+                        <span x-text="cleanupResults?.logs_cleaned || 0"></span> old logs removed
+                    </span>
+                    <span x-show="cleanupResults && !cleanupResults?.success" class="text-red-600">
+                        <i class="fas fa-times-circle mr-1"></i>
+                        Error during cleanup
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Queue Status Section -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-bar text-green-600 mr-2"></i>
+                Queue Statistics
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600 mb-1">Pending Emails</div>
+                    <div class="text-2xl font-bold text-blue-600" x-text="queueStats?.pending_emails || 0"></div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600 mb-1">Pending WhatsApp</div>
+                    <div class="text-2xl font-bold text-green-600" x-text="queueStats?.pending_whatsapp || 0"></div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600 mb-1">Pending Telegram</div>
+                    <div class="text-2xl font-bold text-purple-600" x-text="queueStats?.pending_telegram || 0"></div>
+                </div>
+            </div>
+            
+            <button @click="loadQueueStats()" class="text-sm text-gray-600 hover:text-gray-900">
+                <i class="fas fa-sync-alt mr-1"></i>
+                Refresh Statistics
+            </button>
+        </div>
+
+        <!-- Info Box -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">About Manual Triggers</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>On shared hosting, background processes don't run automatically. Use these buttons to manually process queues when needed, or set up a cron job to run them hourly:</p>
+                        <code class="block mt-2 bg-yellow-100 p-2 rounded text-xs">
+                            0 * * * * php /path/to/backend/scripts/process_queues.php
+                        </code>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -2280,6 +2411,114 @@ async deleteContact(id) {
         }
     } catch (error) {
         alert('Error: Failed to delete contact');
+    }
+},
+
+// === SYSTEM TOOLS FUNCTIONS ===
+processingQueues: false,
+queueResults: null,
+runningCleanup: false,
+cleanupResults: null,
+queueStats: {
+    pending_emails: 0,
+    pending_whatsapp: 0,
+    pending_telegram: 0
+},
+
+async processQueues() {
+    this.processingQueues = true;
+    this.queueResults = null;
+    
+    try {
+        const response = await fetch('../scripts/process_queues.php', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            this.queueResults = await response.json();
+            // Refresh queue stats after processing
+            this.loadQueueStats();
+        } else {
+            this.queueResults = { success: false, message: 'Failed to process queues' };
+        }
+    } catch (error) {
+        console.error('Error processing queues:', error);
+        this.queueResults = { success: false, message: error.message };
+    } finally {
+        this.processingQueues = false;
+        
+        // Clear results after 10 seconds
+        setTimeout(() => {
+            this.queueResults = null;
+        }, 10000);
+    }
+},
+
+async runCleanup() {
+    this.runningCleanup = true;
+    this.cleanupResults = null;
+    
+    try {
+        const response = await fetch('../scripts/cleanup.php', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            this.cleanupResults = await response.json();
+        } else {
+            this.cleanupResults = { success: false, message: 'Failed to run cleanup' };
+        }
+    } catch (error) {
+        console.error('Error running cleanup:', error);
+        this.cleanupResults = { success: false, message: error.message };
+    } finally {
+        this.runningCleanup = false;
+        
+        // Clear results after 10 seconds
+        setTimeout(() => {
+            this.cleanupResults = null;
+        }, 10000);
+    }
+},
+
+async loadQueueStats() {
+    try {
+        const token = localStorage.getItem('admin_token');
+        
+        // Get pending email campaigns count
+        const emailResponse = await fetch('../api/admin/stats.php?type=email_queue', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (emailResponse.ok) {
+            const emailData = await emailResponse.json();
+            this.queueStats.pending_emails = emailData.count || 0;
+        }
+        
+        // Get pending WhatsApp messages count
+        const whatsappResponse = await fetch('../api/admin/stats.php?type=whatsapp_queue', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (whatsappResponse.ok) {
+            const whatsappData = await whatsappResponse.json();
+            this.queueStats.pending_whatsapp = whatsappData.count || 0;
+        }
+        
+        // Get pending Telegram notifications count
+        const telegramResponse = await fetch('../api/admin/stats.php?type=telegram_queue', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (telegramResponse.ok) {
+            const telegramData = await telegramResponse.json();
+            this.queueStats.pending_telegram = telegramData.count || 0;
+        }
+    } catch (error) {
+        console.error('Failed to load queue stats:', error);
     }
 },
 
