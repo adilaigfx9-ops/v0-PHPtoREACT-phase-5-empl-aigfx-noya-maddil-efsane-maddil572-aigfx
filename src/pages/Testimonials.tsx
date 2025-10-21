@@ -1,98 +1,11 @@
 import { Star, Quote, ArrowLeft, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { fetchTestimonials } from "@/utils/api"
+import { Testimonial } from "@/types"
+import { Skeleton } from "@/components/ui/skeleton"
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    role: "YouTube Creator (2.5M+ Subscribers)",
-    content: "Adil's thumbnails increased my CTR from 3% to 15%! My channel growth exploded after working with him. The designs are simply outstanding and drive real results.",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "YouTube Thumbnails",
-    result: "400% CTR increase",
-    platform: "Fiverr"
-  },
-  {
-    id: 2,
-    name: "Mike Rodriguez",
-    role: "Tech Startup Founder",
-    content: "The logo Adil designed became the cornerstone of our $10M startup success. Professional, creative, and delivered exactly what we envisioned. Worth every penny!",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "Logo Design",
-    result: "$10M funding secured",
-    platform: "Direct"
-  },
-  {
-    id: 3,
-    name: "Emma Chen",
-    role: "Marketing Director",
-    content: "Working with Adil was seamless. Fast delivery, unlimited revisions, and results that exceeded our expectations. Our brand recognition increased dramatically!",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "Brand Identity",
-    result: "300% brand recognition boost",
-    platform: "Fiverr"
-  },
-  {
-    id: 4,
-    name: "James Wilson",
-    role: "Gaming YouTuber (800K+ Subs)",
-    content: "My thumbnails went viral after working with Adil. His understanding of YouTube psychology is incredible. My channel revenue doubled in 3 months!",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "Thumbnail Series",
-    result: "100% revenue increase",
-    platform: "Fiverr"
-  },
-  {
-    id: 5,
-    name: "Lisa Park",
-    role: "E-commerce Owner",
-    content: "Adil redesigned our entire brand identity and the results speak for themselves. Our conversion rate increased by 180% and customer trust is through the roof!",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "Complete Rebrand",
-    result: "180% conversion increase",
-    platform: "Direct"
-  },
-  {
-    id: 6,
-    name: "David Kumar",
-    role: "SaaS Founder",
-    content: "The video Adil created for our product launch was phenomenal. It perfectly captured our vision and helped us raise $5M in seed funding. Incredible work!",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "Product Launch Video",
-    result: "$5M funding raised",
-    platform: "Direct"
-  },
-  {
-    id: 7,
-    name: "Alex Thompson",
-    role: "Fitness Influencer (1.2M+ Followers)",
-    content: "Adil transformed my entire YouTube presence. The channel setup, branding, and thumbnail strategy he created helped me gain 500K subscribers in 6 months!",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "YouTube Channel Setup",
-    result: "500K new subscribers",
-    platform: "Fiverr"
-  },
-  {
-    id: 8,
-    name: "Priya Patel",
-    role: "Restaurant Chain Owner",
-    content: "The logo and branding package Adil delivered exceeded all expectations. Our brand looks premium now, and customer perception has improved dramatically.",
-    rating: 5,
-    avatar: "/api/placeholder/80/80",
-    project: "Restaurant Branding",
-    result: "250% brand value increase",
-    platform: "Direct"
-  }
-]
-
+// Case studies remain hardcoded for now (not in database)
 const caseStudies = [
   {
     id: 1,
@@ -101,7 +14,7 @@ const caseStudies = [
     problem: "Low thumbnail CTR (2.1%) and inconsistent branding was limiting channel growth despite quality content",
     solution: "Complete thumbnail strategy overhaul with bold text, high contrast colors, emotion-driven facial expressions, and consistent branding elements",
     result: "CTR increased from 2.1% to 15.8%, gained 490K subscribers in 6 months, monthly revenue grew from $500 to $25,000",
-    image: "/api/placeholder/600/400",
+    image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=600&h=400&fit=crop",
     tags: ["YouTube", "Gaming", "Thumbnails"]
   },
   {
@@ -111,7 +24,7 @@ const caseStudies = [
     problem: "Generic brand identity and amateur logo were hindering investor confidence and customer acquisition",
     solution: "Complete brand overhaul including modern logo design, professional color palette, typography system, and comprehensive brand guidelines",
     result: "Successfully raised $5M Series A funding, 400% increase in website conversions, 300% improvement in brand recognition metrics",
-    image: "/api/placeholder/600/400",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
     tags: ["Branding", "Startup", "Logo", "Investment"]
   },
   {
@@ -121,23 +34,41 @@ const caseStudies = [
     problem: "Poor visual presentation and inconsistent branding leading to 78% bounce rate and declining sales",
     solution: "Complete visual identity redesign including product photography direction, website banners, social media templates, and brand consistency guidelines",
     result: "Bounce rate dropped to 23%, sales increased by 312% in Q1, customer retention improved by 185%, social media engagement up 450%",
-    image: "/api/placeholder/600/400",
+    image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&h=400&fit=crop",
     tags: ["E-commerce", "Visual Design", "Sales", "Photography"]
   },
   {
     id: 4,
-    title: "YouTube Channel Setup Success: 1M Subscribers in 8 Months", 
+    title: "YouTube Channel Setup Success: 1M Subscribers in 8 Months",
     client: "Fitness Journey with Maria",
     problem: "New fitness coach with great content but no understanding of YouTube optimization, branding, or growth strategies",
     solution: "Complete YouTube channel setup including channel art, SEO optimization, thumbnail templates, intro/outro videos, content strategy, and growth plan",
     result: "Gained 1.2M subscribers in 8 months, average 2M+ views per video, monthly ad revenue of $45K+, secured 6-figure brand sponsorship deals",
-    image: "/api/placeholder/600/400",
+    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop",
     tags: ["YouTube", "Channel Setup", "Fitness", "Growth"]
   }
 ]
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [loading, setLoading] = useState(true)
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
+
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        setLoading(true)
+        const data = await fetchTestimonials()
+        setTestimonials(data)
+      } catch (error) {
+        console.error('Failed to load testimonials:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTestimonials()
+  }, [])
 
   const nextTestimonial = () => {
     setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
@@ -160,121 +91,161 @@ export default function Testimonials() {
           </p>
         </div>
 
-        {/* Featured testimonial carousel */}
-        <div className="mb-20">
-          <div className="bg-gradient-subtle rounded-2xl p-8 md:p-12 relative overflow-hidden">
-            <div className="relative z-10">
-              <div className="flex items-center justify-center mb-8">
-                <Quote className="h-16 w-16 text-youtube-red opacity-20" />
-              </div>
-              
-              <blockquote className="text-2xl md:text-3xl font-medium text-center text-foreground mb-8 leading-relaxed">
-                "{testimonials[currentTestimonial].content}"
-              </blockquote>
-              
+        {loading ? (
+          <div className="space-y-20">
+            {/* Featured testimonial skeleton */}
+            <div className="bg-gradient-subtle rounded-2xl p-8 md:p-12">
+              <Skeleton className="h-16 w-16 mx-auto mb-8" />
+              <Skeleton className="h-32 w-full max-w-2xl mx-auto mb-8" />
               <div className="flex items-center justify-center space-x-4">
-                <img 
-                  src={testimonials[currentTestimonial].avatar} 
-                  alt={testimonials[currentTestimonial].name}
-                  className="w-16 h-16 rounded-full object-cover"
-                />
-                <div className="text-center">
-                  <div className="font-semibold text-lg text-foreground">
-                    {testimonials[currentTestimonial].name}
-                  </div>
-                  <div className="text-muted-foreground mb-2">
-                    {testimonials[currentTestimonial].role}
-                  </div>
-                  <div className="flex justify-center space-x-1">
-                    {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-youtube-red fill-current" />
-                    ))}
-                  </div>
+                <Skeleton className="h-16 w-16 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
                 </div>
-              </div>
-              
-              <div className="flex items-center justify-center space-x-8 mt-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={prevTestimonial}
-                  className="hover:bg-youtube-red hover:text-white"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex space-x-2">
-                  {testimonials.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentTestimonial(index)}
-                      className={`w-3 h-3 rounded-full transition-colors ${
-                        index === currentTestimonial ? 'bg-youtube-red' : 'bg-muted'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={nextTestimonial}
-                  className="hover:bg-youtube-red hover:text-white"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* All testimonials grid */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-            What Our <span className="text-gradient-youtube">Clients Say</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="card-premium">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex space-x-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-youtube-red fill-current" />
-                    ))}
-                  </div>
-                  <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
-                    {testimonial.platform}
-                  </span>
-                </div>
-                
-                <blockquote className="text-muted-foreground mb-6 italic">
-                  "{testimonial.content}"
-                </blockquote>
-                
-                <div className="flex items-center space-x-3 mb-4">
-                  <img 
-                    src={testimonial.avatar} 
-                    alt={testimonial.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">{testimonial.name}</div>
-                    <div className="text-xs text-muted-foreground">{testimonial.role}</div>
+            {/* Grid skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div key={idx} className="card-premium space-y-4">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-2 w-32" />
+                    </div>
                   </div>
                 </div>
-                
-                <div className="border-t border-border pt-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Project:</span>
-                    <span className="font-medium text-foreground">{testimonial.project}</span>
+              ))}
+            </div>
+          </div>
+        ) : testimonials.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground">No testimonials available at the moment.</p>
+          </div>
+        ) : (
+          <>
+            {/* Featured testimonial carousel */}
+            <div className="mb-20">
+              <div className="bg-gradient-subtle rounded-2xl p-8 md:p-12 relative overflow-hidden">
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center mb-8">
+                    <Quote className="h-16 w-16 text-youtube-red opacity-20" />
                   </div>
-                  <div className="flex justify-between text-sm mt-1">
-                    <span className="text-muted-foreground">Result:</span>
-                    <span className="font-medium text-youtube-red">{testimonial.result}</span>
+                  
+                  <blockquote className="text-2xl md:text-3xl font-medium text-center text-foreground mb-8 leading-relaxed">
+                    "{testimonials[currentTestimonial].content}"
+                  </blockquote>
+                  
+                  <div className="flex items-center justify-center space-x-4">
+                    <img 
+                      src={testimonials[currentTestimonial].avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(testimonials[currentTestimonial].name)} 
+                      alt={testimonials[currentTestimonial].name}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                    <div className="text-center">
+                      <div className="font-semibold text-lg text-foreground">
+                        {testimonials[currentTestimonial].name}
+                      </div>
+                      <div className="text-muted-foreground mb-2">
+                        {testimonials[currentTestimonial].role}
+                      </div>
+                      <div className="flex justify-center space-x-1">
+                        {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 text-youtube-red fill-current" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-center space-x-8 mt-6">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={prevTestimonial}
+                      className="hover:bg-youtube-red hover:text-white"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex space-x-2">
+                      {testimonials.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentTestimonial(index)}
+                          className={`w-3 h-3 rounded-full transition-colors ${
+                            index === currentTestimonial ? 'bg-youtube-red' : 'bg-muted'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={nextTestimonial}
+                      className="hover:bg-youtube-red hover:text-white"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+
+            {/* All testimonials grid */}
+            <div className="mb-20">
+              <h2 className="text-3xl font-bold text-center text-foreground mb-12">
+                What Our <span className="text-gradient-youtube">Clients Say</span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {testimonials.map((testimonial) => (
+                  <div key={testimonial.id} className="card-premium">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex space-x-1">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 text-youtube-red fill-current" />
+                        ))}
+                      </div>
+                      {testimonial.verified && (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                          Verified
+                        </span>
+                      )}
+                    </div>
+                    
+                    <blockquote className="text-muted-foreground mb-6 italic">
+                      "{testimonial.content}"
+                    </blockquote>
+                    
+                    <div className="flex items-center space-x-3 mb-4">
+                      <img 
+                        src={testimonial.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(testimonial.name)} 
+                        alt={testimonial.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <div className="font-semibold text-foreground text-sm">{testimonial.name}</div>
+                        <div className="text-xs text-muted-foreground">{testimonial.role}</div>
+                      </div>
+                    </div>
+                    
+                    {testimonial.projectType && (
+                      <div className="border-t border-border pt-4">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Project:</span>
+                          <span className="font-medium text-foreground">{testimonial.projectType}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Case studies section */}
         <div className="mb-20">
@@ -285,7 +256,7 @@ export default function Testimonials() {
             Detailed breakdowns of how our designs solved real business problems and delivered measurable results.
           </p>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {caseStudies.map((study) => (
               <div key={study.id} className="card-premium">
                 <div className="aspect-video bg-muted rounded-lg mb-6 overflow-hidden">
@@ -377,6 +348,7 @@ export default function Testimonials() {
               <Button 
                 size="lg"
                 className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-semibold px-8 py-4"
+                onClick={() => window.location.href = '/contact'}
               >
                 Start Your Project Today
               </Button>
@@ -384,6 +356,7 @@ export default function Testimonials() {
                 variant="outline"
                 size="lg"
                 className="border-2 border-youtube-red text-youtube-red hover:bg-youtube-red hover:text-white font-semibold px-8 py-4"
+                onClick={() => window.location.href = '/portfolio'}
               >
                 View Portfolio
               </Button>
